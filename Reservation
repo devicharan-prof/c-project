@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_ROOMS 10
+#define MAX_RESERVATIONS 100
+
+typedef struct {
+    int roomId;
+    char reservedBy[50];
+    char date[20];
+} Reservation;
+
+typedef struct {
+    int roomId;
+    int capacity;
+    int isAvailable;
+} StudyRoom;
+
+StudyRoom rooms[MAX_ROOMS];
+Reservation reservations[MAX_RESERVATIONS];
+int reservationCount = 0;
+
+void initializeRooms() {
+    for (int i = 0; i < MAX_ROOMS; i++) {
+        rooms[i].roomId = i + 1;
+        rooms[i].capacity = (i + 1) * 2;
+        rooms[i].isAvailable = 1;
+    }
+}
+
+int checkAvailability(int roomId, const char* date) {
+    for (int i = 0; i < reservationCount; i++) {
+        if (reservations[i].roomId == roomId && strcmp(reservations[i].date, date) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void makeReservation(int roomId, const char* reservedBy, const char* date) {
+    if (checkAvailability(roomId, date)) {
+        reservations[reservationCount].roomId = roomId;
+        strcpy(reservations[reservationCount].reservedBy, reservedBy);
+        strcpy(reservations[reservationCount].date, date);
+        reservationCount++;
+        printf("Reservation made for Room %d by %s on %s\n", roomId, reservedBy, date);
+    } else {
+        printf("Room %d is not available on %s\n", roomId, date);
+    }
+void viewReservations() {
+    printf("Current Reservations:\n");
+    for (int i = 0; i < reservationCount; i++) {
+        printf("Room %d reserved by %s on %s\n", reservations[i].roomId, reservations[i].reservedBy, reservations[i].date);
+    }
+}
+
+int main() {
+    initializeRooms();
+
+    int choice, roomId;
+    char reservedBy[50], date[20];
+
+    while (1) {
+        printf("\n1. Check Room Availability\n2. Make a Reservation\n3. View Reservations\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter Room ID and Date (YYYY-MM-DD): ");
+                scanf("%d %s", &roomId, date);
+                if (checkAvailability(roomId, date)) {
+                    printf("Room %d is available on %s\n", roomId, date);
+                } else {
+                    printf("Room %d is not available on %s\n", roomId, date);
+                }
+                break;
+
+            case 2:
+                printf("Enter Room ID, Reserved By, and Date (YYYY-MM-DD): ");
+                scanf("%d %s %s", &roomId, reservedBy, date);
+                makeReservation(roomId, reservedBy, date);
+                break;
+
+            case 3:
+                viewReservations();
+                break;
+
+            case 4:
+                exit(0);
+                break;
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
